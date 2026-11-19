@@ -18,3 +18,4 @@ footer { color: #777; font-size: 13px; }
 .row button:disabled { cursor: default; color: #888; }
 .row .acked { color: #1a7f37; font-weight: 600; }
 .row .row-error { grid-column: 1 / -1; color: #b00020; font-size: 13px; padding-bottom: 6px; }
+footer .build { font-family: ui-monospace, monospace; color: #333; }
