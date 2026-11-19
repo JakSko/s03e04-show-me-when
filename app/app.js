@@ -107,7 +107,12 @@ list.addEventListener('click', (event) => {
   onAck(button.closest('[data-testid="incident-row"]').dataset.id);
 });
 
+const REFRESH_MS = 2000;
+let inFlight = false;
+
 async function load() {
+  if (inFlight) return; // never a second request while one is open
+  inFlight = true;
   try {
     const page = await fetchIncidents();
     for (const i of page.incidents) incidents.set(i.id, i);
@@ -115,8 +120,11 @@ async function load() {
     loadError = null;
   } catch (err) {
     loadError = err.message;
+  } finally {
+    inFlight = false;
   }
   render();
 }
 
 await load();
+setInterval(load, REFRESH_MS);
