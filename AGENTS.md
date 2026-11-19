@@ -10,7 +10,7 @@ Decisions: product decides what changes after the first recording; that answer i
 - Run locally: fill a copy of `app/config.js` outside git (see Rules), then `npm run serve` (serves `app/` with serve 14.2.4).
 - Test: `npx playwright test` (Playwright 1.64.1, Chromium; the suite comes with plan step 4).
 - Typecheck or lint: none (plain browser JS, no build step).
-- Deploy: through the gate scripts only (plan step 7), never `railway up` by hand.
+- Deploy: through the gate only, never `railway up` by hand. `node scripts/build_deploy.mjs --out <deploy dir> --api <url> --session-file <file>` builds a folder outside git from `HEAD`, stamps the sha and runs the suite on it (`gate.json`); `pwsh scripts/win-deploy.ps1 -DeployDir <deploy dir> -Url <board url>` refuses unless the gate passes for `HEAD`, `origin/main` is `HEAD` and Railway is linked to our project, then deploys and reads the live sha back.
 
 ## How work moves here
 
