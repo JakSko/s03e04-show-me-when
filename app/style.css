@@ -9,3 +9,6 @@ h1 { margin: 0; font-size: 22px; }
 .row.sev2 .sev { color: #a15c00; }
 .row time { color: #555; font-variant-numeric: tabular-nums; }
 footer { color: #777; font-size: 13px; }
+[hidden] { display: none !important; }
+.loader, .empty { color: #555; margin: 8px 0; }
+.board-error { color: #b00020; margin: 8px 0; }
