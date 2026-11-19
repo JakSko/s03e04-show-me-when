@@ -18,7 +18,7 @@ Acceptance: a viewer in Auckland and one in Berlin each see the time in their ow
 ```
 done: times in the viewer's locale and time zone via Intl; <time datetime> keeps the full UTC value
 worker: claude-code · claude-opus-5-5 · high
-commit: c0b7578
+commit: 916ad8d
 ```
 
-Checked by the main session: Playwright suite green at 748e70c (19 passed, twice), mocked API; live check follows the deploy.
+Checked by the main session: Playwright suite green at b235db4 (19 passed, twice), mocked API; live check follows the deploy.

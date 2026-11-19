@@ -15,7 +15,7 @@ Acceptance: a loader shows on open and is gone once the incidents are on screen.
 ```
 done: loader in the HTML until incidents load; empty state; first-load error that retries on the next refresh
 worker: claude-code · claude-opus-5-5 · high
-commit: 6d29d05
+commit: 15e4201
 ```
 
-Checked by the main session: Playwright suite green at 748e70c (19 passed, twice), mocked API; live check follows the deploy.
+Checked by the main session: Playwright suite green at b235db4 (19 passed, twice), mocked API; live check follows the deploy.

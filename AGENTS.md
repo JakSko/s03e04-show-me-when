@@ -39,6 +39,8 @@ Every issue carries its source (`plan:`) and its done-when (`Acceptance:`). Noth
 
 Shared skills live in `.agents/skills/`, one folder each, with a `SKILL.md` inside. That folder is the one source for every harness on this repo. A harness that loads skills from somewhere else points there, with a link or a config entry. Never copy a skill: copies drift.
 
+`.agents/` is not committed here: `split-plan` comes from the rig kit, which is not ours to publish. Install it locally from your copy of rig (`.agents/skills/split-plan/`).
+
 ## Rules
 
 - Never commit `.env`, tokens, keys, the session or ack receipts. `app/config.js` keeps its placeholders in git; the filled copy lives only in the deploy folder outside this repo.

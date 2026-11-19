@@ -15,7 +15,7 @@ Acceptance: leave the board open; it stays current without a reload.
 ```
 done: board refreshes every 2 s through fetchIncidents(), never two requests at once
 worker: claude-code · claude-opus-5-5 · high
-commit: 71a70ac
+commit: 48ed5c6
 ```
 
-Checked by the main session: Playwright suite green at 748e70c (19 passed, twice), mocked API; live check follows the deploy.
+Checked by the main session: Playwright suite green at b235db4 (19 passed, twice), mocked API; live check follows the deploy.

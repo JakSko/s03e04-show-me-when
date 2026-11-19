@@ -18,7 +18,7 @@ Acceptance: a new incident shows at the top without a reload; Ack on a row acks 
 ```
 done: rows merged by id, newest first, rendered as text; Ack per row calls api.ack(id) once and shows the acked mark or an error
 worker: claude-code · claude-opus-5-5 · high
-commit: 8b55a37
+commit: 36de96f
 ```
 
-Checked by the main session: Playwright suite green at 748e70c (19 passed, twice), mocked API; live check follows the deploy.
+Checked by the main session: Playwright suite green at b235db4 (19 passed, twice), mocked API; live check follows the deploy.
