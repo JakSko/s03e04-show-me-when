@@ -25,7 +25,7 @@ const rowIds = (page) =>
   page.getByTestId('incident-row').evaluateAll((rows) => rows.map((r) => r.dataset.id));
 
 test.describe('hooks', () => {
-  test('hooks: board, incident-list, incident-row with data-id, ack per row, build-sha', async ({ page, board }) => {
+  test('hooks: board, incident-list, incident-row with data-id, ack per row, build-sha, new-bar', async ({ page, board }) => {
     await board([[A, B]]);
     await expect(page.getByTestId('board')).toHaveCount(1);
     await expect(page.getByTestId('incident-list')).toHaveCount(1);
@@ -35,24 +35,68 @@ test.describe('hooks', () => {
       await expect(row(page, id).getByTestId('ack')).toHaveCount(1);
     }
     await expect(page.getByTestId('build-sha')).toHaveCount(1);
+    await expect(page.getByTestId('new-bar')).toHaveCount(1);
   });
 });
 
-test.describe('R1 live list, newest first', () => {
-  test('R1 a new incident shows at the top without a reload', async ({ page, board }) => {
+test.describe('R1 the list holds still; an "N new" bar brings new incidents in (product decision)', () => {
+  const boxes = (page) =>
+    page.getByTestId('incident-row').evaluateAll((rows) => rows.map((r) => [r.dataset.id, Math.round(r.getBoundingClientRect().top)]));
+
+  test('R1 a new incident waits in the new-bar; no row moves, no reload', async ({ page, board }) => {
     await board([[B, A], [C, B, A]]);
     await expect(page.getByTestId('incident-row')).toHaveCount(2);
+    await expect(page.getByTestId('new-bar')).toBeHidden();
+    const before = await boxes(page);
     await page.evaluate(() => (window.__noReload = true));
-    await expect(page.getByTestId('incident-row')).toHaveCount(3, { timeout: 5000 });
-    expect((await rowIds(page))[0]).toBe('INC-1003');
+    await expect(page.getByTestId('new-bar')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByTestId('new-bar')).toContainText('1 new');
+    expect(await boxes(page)).toEqual(before);
     expect(await page.evaluate(() => window.__noReload)).toBe(true);
+  });
+
+  test('R1 clicking the new-bar brings the waiting incidents in at the top, newest first', async ({ page, board }) => {
+    await board([[A], [B, A], [C, B, A]]);
+    await expect(page.getByTestId('incident-row')).toHaveCount(1);
+    await expect(page.getByTestId('new-bar')).toContainText('2 new', { timeout: 7000 });
+    await page.getByTestId('new-bar').click();
+    expect(await rowIds(page)).toEqual(['INC-1003', 'INC-1002', 'INC-1001']);
+    await expect(page.getByTestId('new-bar')).toBeHidden();
   });
 
   test('R1 rows are merged by id: a partial page loses no row, a full page adds no duplicate', async ({ page, board }) => {
     await board([[B, A], [C], [C, B, A]]);
     await expect(page.getByTestId('incident-row')).toHaveCount(2);
     await page.waitForTimeout(4500);
+    await expect(page.getByTestId('new-bar')).toContainText('1 new');
+    await page.getByTestId('new-bar').click();
     expect(await rowIds(page)).toEqual(['INC-1003', 'INC-1002', 'INC-1001']);
+  });
+
+  test('R1 ack-race: a click as a new incident lands acks the row aimed at', async ({ page, board }) => {
+    const api = await board([[B, A], [C, B, A]]);
+    await expect(page.getByTestId('incident-row')).toHaveCount(2);
+    const aim = await row(page, 'INC-1001').getByTestId('ack').boundingBox();
+    const x = aim.x + aim.width / 2;
+    const y = aim.y + aim.height / 2;
+    await page.mouse.move(x, y);
+    await expect.poll(() => api.requests.length, { timeout: 5000 }).toBeGreaterThanOrEqual(2);
+    await page.waitForTimeout(50);
+    await page.mouse.down();
+    await page.mouse.up();
+    await expect(row(page, 'INC-1001').getByTestId('acked')).toBeVisible();
+    expect(api.acks.map((a) => a.id)).toEqual(['INC-1001']);
+  });
+
+  test('R1 the acked mark stays on its row when new incidents come in', async ({ page, board }) => {
+    await board([[B, A], [C, B, A]]);
+    await row(page, 'INC-1001').getByTestId('ack').click();
+    await expect(row(page, 'INC-1001').getByTestId('acked')).toBeVisible();
+    await expect(page.getByTestId('new-bar')).toBeVisible({ timeout: 5000 });
+    await page.getByTestId('new-bar').click();
+    expect(await rowIds(page)).toEqual(['INC-1003', 'INC-1002', 'INC-1001']);
+    await expect(row(page, 'INC-1001').getByTestId('acked')).toBeVisible();
+    await expect(page.getByTestId('acked')).toHaveCount(1);
   });
 
   test('R1 sorted by openedAt descending whatever order the API sends, id descending on a tie', async ({ page, board }) => {

@@ -19,3 +19,5 @@ footer { color: #777; font-size: 13px; }
 .row .acked { color: #1a7f37; font-weight: 600; }
 .row .row-error { grid-column: 1 / -1; color: #b00020; font-size: 13px; padding-bottom: 6px; }
 footer .build { font-family: ui-monospace, monospace; color: #333; }
+.new-bar { display: block; width: 100%; max-width: 960px; min-height: 36px; margin: 0 0 8px; padding: 6px 12px; font: inherit; text-align: left; color: #fff; background: #1f6feb; border: 0; border-radius: 4px; cursor: pointer; }
+.new-bar.idle { visibility: hidden; cursor: default; }

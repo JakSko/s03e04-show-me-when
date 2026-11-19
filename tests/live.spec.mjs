@@ -14,6 +14,7 @@ test('live: loader, list, local times, build sha; Ack answered locally', async (
   expect(await res.text()).toContain('data-testid="loader"');
   await expect(page.getByTestId('incident-row').first()).toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId('loader')).toBeHidden();
+  await expect(page.getByTestId('new-bar')).toHaveCount(1);
   const time = page.getByTestId('incident-row').first().locator('time');
   expect(await time.getAttribute('datetime')).toMatch(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z$/);
   expect(await time.innerText()).not.toMatch(/T\d\d:\d\d/);

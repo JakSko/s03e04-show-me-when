@@ -5,10 +5,12 @@ const list = board.querySelector('[data-testid="incident-list"]');
 const loader = board.querySelector('[data-testid="loader"]');
 const empty = board.querySelector('[data-testid="empty"]');
 const boardError = board.querySelector('.board-error');
+const newBar = board.querySelector('[data-testid="new-bar"]');
 
 const SEVERITIES = new Set(['sev1', 'sev2', 'sev3', 'sev4']);
 
 const incidents = new Map(); // id -> incident, merged across every page
+const shown = new Set(); // ids in the list on screen; the list holds still, new ones wait for the new-bar
 const rows = new Map(); // id -> <li>, kept so a row is updated in place, not rebuilt
 const acked = new Map(); // id -> ack reply; the API has no acked state, so this lives only in this page
 const acking = new Set(); // ids with an ack in flight
@@ -83,8 +85,13 @@ function render() {
   loader.hidden = loaded || loadError !== null;
   boardError.hidden = loadError === null;
   boardError.textContent = loadError ? `Could not load incidents (${loadError}). Retrying…` : '';
-  empty.hidden = !loaded || incidents.size > 0;
-  const ordered = [...incidents.values()].sort(newestFirst).map(renderRow);
+  empty.hidden = !loaded || shown.size > 0;
+  const waiting = [...incidents.keys()].filter((id) => !shown.has(id)).length;
+  newBar.classList.toggle('idle', waiting === 0); // idle keeps its space, so the list never moves when it shows
+  newBar.disabled = waiting === 0;
+  newBar.setAttribute('aria-hidden', String(waiting === 0));
+  newBar.textContent = waiting ? `${waiting} new incident${waiting === 1 ? '' : 's'} · show` : '';
+  const ordered = [...incidents.values()].filter((i) => shown.has(i.id)).sort(newestFirst).map(renderRow);
   ordered.forEach((li, n) => {
     if (list.children[n] !== li) list.insertBefore(li, list.children[n] ?? null);
   });
@@ -112,6 +119,11 @@ list.addEventListener('click', (event) => {
   onAck(button.closest('[data-testid="incident-row"]').dataset.id);
 });
 
+newBar.addEventListener('click', () => {
+  for (const id of incidents.keys()) shown.add(id);
+  render();
+});
+
 const REFRESH_MS = 2000;
 let inFlight = false;
 
@@ -120,7 +132,11 @@ async function load() {
   inFlight = true;
   try {
     const page = await fetchIncidents();
-    for (const i of page.incidents) incidents.set(i.id, i);
+    const takeAll = shown.size === 0; // nothing on screen yet, so nothing can move: show them directly
+    for (const i of page.incidents) {
+      incidents.set(i.id, i);
+      if (takeAll) shown.add(i.id);
+    }
     loaded = true;
     loadError = null;
   } catch (err) {
