@@ -29,8 +29,13 @@ function newestFirst(a, b) {
   return a.id < b.id ? 1 : a.id > b.id ? -1 : 0;
 }
 
+// The viewer's own locale and time zone (undefined = the browser's, not the page's lang):
+// en-NZ 18/11/2026, 4:11 pm · de-DE 18.11.26, 04:11 · en-US 11/17/26, 10:11 PM.
+const localTime = new Intl.DateTimeFormat(undefined, { dateStyle: 'short', timeStyle: 'short' });
+
 function timeText(iso) {
-  return iso;
+  const ms = Date.parse(iso);
+  return Number.isNaN(ms) ? iso : localTime.format(ms);
 }
 
 function renderRow(i) {
